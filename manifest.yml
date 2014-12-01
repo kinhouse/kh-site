@@ -1,0 +1,6 @@
+---
+applications:
+  - name: kh-site
+    command: bin/kh-site
+    memory: 64M
+
