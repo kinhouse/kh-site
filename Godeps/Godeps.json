@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/kinhouse/sandbox",
+	"ImportPath": "github.com/kinhouse/kh-site",
 	"GoVersion": "go1.3.3",
 	"Deps": [
 		{
