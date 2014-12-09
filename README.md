@@ -1,4 +1,3 @@
-sandbox
-=======
+A wedding website, from scratch.
 
-just messing around
+A fun way to learn Golang and re-learn HTML.
