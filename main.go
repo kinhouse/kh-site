@@ -2,17 +2,49 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"html/template"
+	"io/ioutil"
 	"os"
 )
 
+func loadPage(title string) template.HTML {
+	path := "assets/" + title + ".html"
+	body, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return template.HTML(body)
+}
+
 func main() {
+
+	pageTemplate, err := template.ParseFiles("assets/template.html")
+	if err != nil {
+		panic(err)
+	}
+
+	locationPage := loadPage("event")
+	homePage := loadPage("home")
+
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(200, "pong")
+
+	r.GET("/event", func(c *gin.Context) {
+		pageTemplate.Execute(c.Writer, locationPage)
 	})
-	r.Static("/assets", "assets")
+
 	r.GET("/", func(c *gin.Context) {
-		c.File("assets/index.html")
+		pageTemplate.Execute(c.Writer, homePage)
+	})
+
+	r.GET("/rsvp", func(c *gin.Context) {
+		pageTemplate.Execute(c.Writer, template.HTML("Coming soon..."))
+	})
+
+	r.GET("/main.css", func(c *gin.Context) {
+		c.File("assets/main.css")
+	})
+	r.GET("/map.png", func(c *gin.Context) {
+		c.File("assets/map.png")
 	})
 	r.Run(":" + os.Getenv("PORT"))
 }
