@@ -2,6 +2,7 @@ body {
     margin: auto;
     width: 90%;
     font-family: 'Helvetica', 'Arial', 'Sans-Serif';
+    max-width: 900px;
 }
 nav ul,
 footer ul {
