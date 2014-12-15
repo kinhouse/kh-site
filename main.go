@@ -40,7 +40,7 @@ func main() {
 		pageTemplate.Execute(c.Writer, template.HTML("Coming soon..."))
 	})
 
-	staticAssets := []string{"main.css", "map.png", "header.png"}
+	staticAssets := []string{"main.css", "map.png", "header.png", "favicon.png"}
 	for _, filename := range staticAssets {
 		asset := filename
 		r.GET("/"+asset, func(c *gin.Context) {
