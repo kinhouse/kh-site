@@ -40,11 +40,13 @@ func main() {
 		pageTemplate.Execute(c.Writer, template.HTML("Coming soon..."))
 	})
 
-	r.GET("/main.css", func(c *gin.Context) {
-		c.File("assets/main.css")
-	})
-	r.GET("/map.png", func(c *gin.Context) {
-		c.File("assets/map.png")
-	})
+	staticAssets := []string{"main.css", "map.png", "header.png"}
+	for _, filename := range staticAssets {
+		asset := filename
+		r.GET("/"+asset, func(c *gin.Context) {
+			c.File("assets/" + asset)
+		})
+	}
+
 	r.Run(":" + os.Getenv("PORT"))
 }
