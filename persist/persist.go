@@ -14,9 +14,22 @@ import (
 const (
 	CloudKeyEnvVar = "GOOGLE_CLOUD_KEY"
 	ProjectId      = "kh-site"
+	KindRsvp       = "rsvp"
 )
 
-func CreateGoogleCloudContext() (context.Context, error) {
+type Persist struct {
+	context context.Context
+}
+
+func NewPersist() (Persist, error) {
+	ctx, err := createGoogleCloudContext()
+	if err != nil {
+		return Persist{}, err
+	}
+	return Persist{context: ctx}, nil
+}
+
+func createGoogleCloudContext() (context.Context, error) {
 	jsonString := os.Getenv(CloudKeyEnvVar)
 	if jsonString == "" {
 		return nil, fmt.Errorf("missing env var %q", CloudKeyEnvVar)
@@ -28,37 +41,23 @@ func CreateGoogleCloudContext() (context.Context, error) {
 	return cloud.NewContext(ProjectId, conf.Client(oauth2.NoContext)), nil
 }
 
-func DatastoreTest(cloudContext context.Context) string {
-	//cloudContext = datastore.WithNamespace(cloudContext, "")
-	query := datastore.NewQuery("")
-	iter := query.Run(cloudContext)
-	for {
-		k, e := iter.Next(nil)
-		if e == datastore.Done {
-			break
-		}
-		if e != nil {
-			panic(e)
-		}
-		fmt.Printf("\nkey is: %+v\n", k)
-	}
-	type Rsvp struct {
-		name   string
-		email  string
-		guests int `datastore:",noindex"`
-	}
-	return "foo"
+type Rsvp struct {
+	FullName string
+	Email    string
+	Guests   int `datastore:",noindex"`
+}
 
-	key := datastore.NewIncompleteKey(cloudContext, "rsvp", nil)
-	key, err := datastore.Put(cloudContext, key, &Rsvp{
-		name:   "Some Person",
-		email:  "example@example.com",
-		guests: 2,
-	})
+func (p Persist) GetAllRSVPs() ([]Rsvp, error) {
+	var results []Rsvp
 
-	if err != nil {
-		panic(err)
-	}
+	query := datastore.NewQuery(KindRsvp)
+	_, err := query.GetAll(p.context, &results)
+	return results, err
+}
 
-	return key.Name()
+func (p Persist) InsertNewRSVP(rsvp Rsvp) (int64, error) {
+	key := datastore.NewIncompleteKey(p.context, KindRsvp, nil)
+	key, err := datastore.Put(p.context, key, &rsvp)
+	fmt.Printf("just put: %+v\n", key)
+	return key.ID(), err
 }

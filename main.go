@@ -22,12 +22,10 @@ func loadPage(title string) template.HTML {
 
 func main() {
 
-	cloudContext, err := persist.CreateGoogleCloudContext()
+	data, err := persist.NewPersist()
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Printf(persist.DatastoreTest(cloudContext))
 
 	pageTemplate, err := template.ParseFiles("assets/template.html")
 	if err != nil {
@@ -39,8 +37,24 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/datastore", func(c *gin.Context) {
-		c.JSON(200, gin.H{"msg": persist.DatastoreTest(cloudContext)})
+	r.GET("/api/v0/rsvps", func(c *gin.Context) {
+		rsvps, err := data.GetAllRSVPs()
+		if err != nil {
+			c.Fail(500, err)
+		}
+		c.JSON(200, rsvps)
+	})
+
+	r.POST("/api/v0/rsvps", func(c *gin.Context) {
+		var rsvp persist.Rsvp
+		if c.Bind(&rsvp) {
+			fmt.Printf("got rsvp post: %+v\n", rsvp)
+			id, err := data.InsertNewRSVP(rsvp)
+			if err != nil {
+				c.Fail(500, err)
+			}
+			c.JSON(201, gin.H{"id": id})
+		}
 	})
 
 	r.GET("/event", func(c *gin.Context) {
