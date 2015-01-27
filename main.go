@@ -1,23 +1,14 @@
 package main
 
 import (
-	"code.google.com/p/goauth2/oauth/jwt"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/net/context"
-	"google.golang.org/cloud"
-	"google.golang.org/cloud/datastore"
 
-	"encoding/json"
-	"errors"
+	"github.com/kinhouse/kh-site/persist"
+
 	"fmt"
 	"html/template"
 	"io/ioutil"
 	"os"
-)
-
-const (
-	CloudKeyEnvVar = "GOOGLE_CLOUD_KEY"
-	ProjectId      = "kh-site"
 )
 
 func loadPage(title string) template.HTML {
@@ -29,66 +20,14 @@ func loadPage(title string) template.HTML {
 	return template.HTML(body)
 }
 
-func loadGoogleCloudKeys() (map[string]string, error) {
-	var cloudKeys map[string]string
-
-	jsonString := os.Getenv(CloudKeyEnvVar)
-	err := json.Unmarshal([]byte(jsonString), &cloudKeys)
-	if err != nil {
-		fmt.Printf(err.Error())
-		fmt.Printf(jsonString)
-		return cloudKeys, errors.New(fmt.Sprintf("error reading cloud key from env var %q", CloudKeyEnvVar))
-	}
-	return cloudKeys, nil
-}
-
-func createGoogleCloudContext() (context.Context, error) {
-	cloudKeys, err := loadGoogleCloudKeys()
-	if err != nil {
-		return nil, err
-	}
-
-	iss := cloudKeys["client_email"]
-	scope := "https://www.googleapis.com/auth/datastore"
-	key := []byte(cloudKeys["private_key"])
-	token := jwt.NewToken(iss, scope, key)
-	transport, err := jwt.NewTransport(token)
-	if err != nil {
-		return nil, err
-	}
-	oauthHttpClient := transport.Client()
-	return cloud.NewContext(ProjectId, oauthHttpClient), nil
-}
-
-func datastoreTest(cloudContext context.Context) string {
-	type Rsvp struct {
-		name   string
-		email  string
-		guests int `datastore:",noindex"`
-	}
-
-	key := datastore.NewIncompleteKey(cloudContext, "rsvp", nil)
-	key, err := datastore.Put(cloudContext, key, &Rsvp{
-		name:   "Some Person",
-		email:  "example@example.com",
-		guests: 2,
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	return key.Name()
-}
-
 func main() {
 
-	cloudContext, err := createGoogleCloudContext()
+	cloudContext, err := persist.CreateGoogleCloudContext()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf(datastoreTest(cloudContext))
+	fmt.Printf(persist.DatastoreTest(cloudContext))
 
 	pageTemplate, err := template.ParseFiles("assets/template.html")
 	if err != nil {
@@ -101,7 +40,7 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/datastore", func(c *gin.Context) {
-		c.JSON(200, gin.H{"msg": datastoreTest(cloudContext)})
+		c.JSON(200, gin.H{"msg": persist.DatastoreTest(cloudContext)})
 	})
 
 	r.GET("/event", func(c *gin.Context) {
