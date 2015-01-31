@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kinhouse/kh-site/types"
+
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -41,21 +43,15 @@ func createGoogleCloudContext() (context.Context, error) {
 	return cloud.NewContext(ProjectId, conf.Client(oauth2.NoContext)), nil
 }
 
-type Rsvp struct {
-	FullName string
-	Email    string
-	Guests   int `datastore:",noindex"`
-}
-
-func (p Persist) GetAllRSVPs() ([]Rsvp, error) {
-	var results []Rsvp
+func (p Persist) GetAllRSVPs() ([]types.Rsvp, error) {
+	var results []types.Rsvp
 
 	query := datastore.NewQuery(KindRsvp)
 	_, err := query.GetAll(p.context, &results)
 	return results, err
 }
 
-func (p Persist) InsertNewRSVP(rsvp Rsvp) (int64, error) {
+func (p Persist) InsertNewRSVP(rsvp types.Rsvp) (int64, error) {
 	key := datastore.NewIncompleteKey(p.context, KindRsvp, nil)
 	key, err := datastore.Put(p.context, key, &rsvp)
 	fmt.Printf("just put: %+v\n", key)
