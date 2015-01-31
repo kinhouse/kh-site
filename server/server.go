@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	"os"
 )
 
 type PersistInterface interface {
@@ -53,7 +52,7 @@ func loadPage(title string) template.HTML {
 	return template.HTML(body)
 }
 
-func (s Server) createRoutes() *gin.Engine {
+func (s Server) BuildRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.GET("/api/v0/rsvps", func(c *gin.Context) {
@@ -91,7 +90,7 @@ func (s Server) createRoutes() *gin.Engine {
 	return r
 }
 
-func (s Server) Run() {
-	routerGroup := s.createRoutes()
-	routerGroup.Run(":" + os.Getenv("PORT"))
+func (s Server) Run(port int) {
+	routerGroup := s.BuildRouter()
+	routerGroup.Run(fmt.Sprintf(":%d", port))
 }
