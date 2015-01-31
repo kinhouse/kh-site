@@ -3,11 +3,6 @@
 	"GoVersion": "go1.4",
 	"Deps": [
 		{
-			"ImportPath": "code.google.com/p/goauth2/oauth",
-			"Comment": "weekly-56",
-			"Rev": "afe77d958c701557ec5dc56f6936fcc194d15520"
-		},
-		{
 			"ImportPath": "github.com/gin-gonic/gin",
 			"Comment": "v0.4-8-g3b079bb",
 			"Rev": "3b079bb6f79ae501e73a5401c41b589f6616b61e"
@@ -21,15 +16,30 @@
 			"Rev": "46807412fe50aaceb73bb57061c2230fd26a1640"
 		},
 		{
+			"ImportPath": "github.com/onsi/ginkgo",
+			"Comment": "v1.1.0-33-g17ea479",
+			"Rev": "17ea479729ee427265ac1e913443018350946ddf"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega",
+			"Comment": "v1.0-28-g8adf9e1",
+			"Rev": "8adf9e1730c55cdc590de7d49766cb2acc88d8f2"
+		},
+		{
+			"ImportPath": "github.com/sclevine/agouti/core",
+			"Comment": "v1-latest-25-gd7cec9c",
+			"Rev": "d7cec9c492f17b190e32249192b728d61159d2a5"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "ca657d0bd9d9b4f73523118b59af79e5374b9908"
 		},
 		{
-			"ImportPath": "google.golang.org/cloud/datastore",
-			"Rev": "2e43671e4ad874a7bca65746ff3edb38e6e93762"
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "2b74ab268d043de5b0577a4773e67df08135e06d"
 		},
 		{
-			"ImportPath": "google.golang.org/cloud/internal",
+			"ImportPath": "google.golang.org/cloud",
 			"Rev": "2e43671e4ad874a7bca65746ff3edb38e6e93762"
 		}
 	]
