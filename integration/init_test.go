@@ -10,6 +10,9 @@ import (
 	. "github.com/sclevine/agouti/core"
 
 	"testing"
+
+	"github.com/kinhouse/kh-site/fakes"
+	"github.com/kinhouse/kh-site/server"
 )
 
 func TestKhSite(t *testing.T) {
@@ -18,6 +21,10 @@ func TestKhSite(t *testing.T) {
 }
 
 var agoutiDriver WebDriver
+
+var baseUrl string
+
+const port = 5000
 
 var _ = BeforeSuite(func() {
 	var err error
@@ -30,6 +37,15 @@ var _ = BeforeSuite(func() {
 
 	Expect(err).NotTo(HaveOccurred())
 	Expect(agoutiDriver.Start()).To(Succeed())
+
+	persist := fakes.Persist{}
+	serverConfig := server.BuildServerConfig(persist)
+	router := serverConfig.BuildRouter()
+	go router.Run(fmt.Sprintf(":%d", port))
+
+	baseUrl = fmt.Sprintf("http://localhost:%d", port)
+	WaitToBoot(baseUrl)
+
 })
 
 var _ = AfterSuite(func() {

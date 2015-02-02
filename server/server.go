@@ -5,9 +5,9 @@ import (
 
 	"github.com/kinhouse/kh-site/types"
 
+	"errors"
 	"fmt"
-	"html/template"
-	"io/ioutil"
+	"os"
 )
 
 type PersistInterface interface {
@@ -15,82 +15,96 @@ type PersistInterface interface {
 	InsertNewRSVP(types.Rsvp) (int64, error)
 }
 
-type Server struct {
-	Data         PersistInterface
-	PageTemplate *template.Template
-	Pages        map[string]template.HTML
-	Assets       []string
+type ServerConfig struct {
+	Data       PersistInterface
+	AssetNames []string
+	*PageFactory
 }
 
-func BuildServer(persist PersistInterface) Server {
-	pageTemplate, err := template.ParseFiles("assets/template.html")
-	if err != nil {
-		panic(err)
+func BuildServerConfig(persist PersistInterface) ServerConfig {
+	assetsDirectory := os.Getenv("ASSETS_DIR")
+	if assetsDirectory == "" {
+		assetsDirectory = "assets"
 	}
+	fmt.Printf("\n Assets dir: %s\n", assetsDirectory)
 
-	locationPage := loadPage("event")
-	homePage := loadPage("home")
-
-	return Server{
-		Data:         persist,
-		PageTemplate: pageTemplate,
-		Pages: map[string]template.HTML{
-			"":      homePage,
-			"rsvp":  template.HTML("Coming soon..."),
-			"event": locationPage,
+	return ServerConfig{
+		Data:       persist,
+		AssetNames: []string{"main.css", "map.png", "header.png", "favicon.png"},
+		PageFactory: &PageFactory{
+			AssetProvider:    &AssetProvider{assetsDirectory},
+			PageTemplateName: "template.html",
+			PageSpecs: []PageSpec{
+				PageSpec{"home", "Home", ""},
+				PageSpec{"event", "Event", "event"},
+				PageSpec{"rsvp", "RSVP", "rsvp"},
+			},
 		},
-		Assets: []string{"main.css", "map.png", "header.png", "favicon.png"},
 	}
 }
 
-func loadPage(title string) template.HTML {
-	path := "assets/" + title + ".html"
-	body, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
+func (s ServerConfig) AddPageRoutes(e *gin.Engine) {
+	pages := s.PageFactory.AssemblePages()
+
+	for route, pageContent := range pages {
+		data := []byte(pageContent)
+		e.GET("/"+route, func(c *gin.Context) {
+			c.Data(200, gin.MIMEHTML, data)
+		})
 	}
-	return template.HTML(body)
 }
 
-func (s Server) BuildRouter() *gin.Engine {
-	r := gin.Default()
-
-	r.GET("/api/v0/rsvps", func(c *gin.Context) {
+func (s ServerConfig) AddAPIRoutes(e *gin.Engine) {
+	e.GET("/api/v0/rsvps", func(c *gin.Context) {
 		rsvps, err := s.Data.GetAllRSVPs()
 		if err != nil {
 			c.Fail(500, err)
+			return
 		}
 		c.JSON(200, rsvps)
 	})
 
-	r.POST("/api/v0/rsvps", func(c *gin.Context) {
+	e.POST("/api/v0/rsvps", func(c *gin.Context) {
 		var rsvp types.Rsvp
-		if c.Bind(&rsvp) {
-			fmt.Printf("got rsvp post: %+v\n", rsvp)
-			id, err := s.Data.InsertNewRSVP(rsvp)
-			if err != nil {
-				c.Fail(500, err)
-			}
-			c.JSON(201, gin.H{"id": id})
+		if !c.Bind(&rsvp) {
+			return
 		}
+
+		fmt.Printf("got rsvp post: %+v\n", rsvp)
+
+		if rsvp.FullName == "" || rsvp.Email == "" {
+			c.Fail(400, errors.New("Missing required fields"))
+			return
+		}
+
+		id, err := s.Data.InsertNewRSVP(rsvp)
+		if err != nil {
+			c.Fail(500, err)
+			return
+		}
+
+		c.JSON(201, gin.H{"id": id})
 	})
+}
 
-	for route, body := range s.Pages {
-		pageBody := body
-		r.GET("/"+route, func(c *gin.Context) {
-			s.PageTemplate.Execute(c.Writer, pageBody)
-		})
+func (s ServerConfig) AddStaticAssetRoutes(e *gin.Engine) {
+	for _, name := range s.AssetNames {
+		assetPath := s.GetAssetPath(name)
+		e.GET("/"+name, func(c *gin.Context) { c.File(assetPath) })
 	}
+}
 
-	for _, filename := range s.Assets {
-		asset := filename
-		r.GET("/"+asset, func(c *gin.Context) { c.File("assets/" + asset) })
-	}
+func (s ServerConfig) BuildRouter() *gin.Engine {
+	r := gin.Default()
+
+	s.AddAPIRoutes(r)
+	s.AddStaticAssetRoutes(r)
+	s.AddPageRoutes(r)
 
 	return r
 }
 
-func (s Server) Run(port int) {
-	routerGroup := s.BuildRouter()
-	routerGroup.Run(fmt.Sprintf(":%d", port))
+func (s ServerConfig) BuildAndRun(port int) {
+	router := s.BuildRouter()
+	router.Run(fmt.Sprintf(":%d", port))
 }

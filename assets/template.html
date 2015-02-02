@@ -2,7 +2,7 @@
 <html>
 	<head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-		<title>Alana &amp; Gabe</title>
+		<title>Alana &amp; Gabe{{if ne .Title "Home"}}: {{.Title}}{{end}}</title>
 		<link rel="stylesheet" type="text/css" href="/main.css">
         <link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="robots" content="noindex">
@@ -20,15 +20,14 @@
 	<body>
         <nav>
             <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/event">Event</a></li>
-                <!--
-                <li><a href="/rsvp">RSVP</a></li>
-                -->
+                {{with .NavItems}}
+                {{range .}}<li{{if eq .ID $.ID}} class="nav-current"{{end}}><a href="/{{.Route}}">{{.Title}}</a></li>
+                {{end}}
+                {{end}}
             </ul>
 		</nav>
         <div class="page">
-            {{.}}
+            {{.Body}}
         </div>
         <footer>
             <ul>

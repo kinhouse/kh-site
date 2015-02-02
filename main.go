@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -19,6 +20,7 @@ func main() {
 		panic("set the PORT")
 	}
 
-	server := server.BuildServer(persist)
-	server.Run(port)
+	serverConfig := server.BuildServerConfig(persist)
+	router := serverConfig.BuildRouter()
+	router.Run(fmt.Sprintf(":%d", port))
 }
