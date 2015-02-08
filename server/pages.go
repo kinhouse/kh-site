@@ -17,8 +17,7 @@ type PageSpec struct {
 }
 
 type pageData struct {
-	NavItems *[]pageData
-	ID       int
+	NavItems *[]PageSpec
 	Body     string
 	PageSpec
 }
@@ -49,8 +48,7 @@ func (f PageFactory) assemblePageData(pageSpecs []PageSpec) []pageData {
 		})
 	}
 	for i := range pages {
-		pages[i].ID = i
-		pages[i].NavItems = &pages
+		pages[i].NavItems = &pageSpecs
 	}
 	return pages
 }

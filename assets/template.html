@@ -21,7 +21,7 @@
         <nav>
             <ul>
                 {{with .NavItems}}
-                {{range .}}<li{{if eq .ID $.ID}} class="nav-current"{{end}}><a href="/{{.Route}}">{{.Title}}</a></li>
+                {{range .}}<li{{if eq .Route $.Route}} class="nav-current"{{end}}><a href="/{{.Route}}">{{.Title}}</a></li>
                 {{end}}
                 {{end}}
             </ul>
