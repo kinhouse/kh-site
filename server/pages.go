@@ -6,22 +6,26 @@ import (
 	"text/template"
 )
 
+type AssetProviderInterface interface {
+	GetAssetPath(string) string
+}
+
 type PageFactory struct {
-	*AssetProvider
+	AssetProviderInterface
 	PageTemplateName string
 	PageSpecs        []PageSpec
 }
 
 const (
-	RouteRoot = ""
-	//RouteNone = "  ~~ NO ROUTE ~~ "
+	RootRoute = ""
+	NoRoute   = "  ~~ NO ROUTE ~~ "
 )
 
 type PageSpec struct {
 	AssetName, Title, Route string
 }
 
-type pageData struct {
+type PageData struct {
 	NavItems *[]PageSpec
 	Body     string
 	PageSpec
@@ -31,7 +35,7 @@ func (f PageFactory) AssemblePages() map[string]string {
 	pageTemplate := f.loadPageTemplate()
 
 	pages := map[string]string{}
-	for _, pageData := range f.assemblePageData(f.PageSpecs) {
+	for _, pageData := range f.AssemblePageData(f.PageSpecs) {
 		var b bytes.Buffer
 		err := pageTemplate.Execute(&b, pageData)
 		if err != nil {
@@ -43,17 +47,21 @@ func (f PageFactory) AssemblePages() map[string]string {
 	return pages
 }
 
-func (f PageFactory) assemblePageData(pageSpecs []PageSpec) []pageData {
-	var pages []pageData
+func (f PageFactory) AssemblePageData(pageSpecs []PageSpec) []PageData {
+	var pages []PageData
+	var navItems []PageSpec
 
 	for _, pageSpec := range pageSpecs {
-		pages = append(pages, pageData{
+		pages = append(pages, PageData{
 			PageSpec: pageSpec,
 			Body:     f.loadPageBody(pageSpec.AssetName),
 		})
+		if pageSpec.Route != NoRoute {
+			navItems = append(navItems, pageSpec)
+		}
 	}
 	for i := range pages {
-		pages[i].NavItems = &pageSpecs
+		pages[i].NavItems = &navItems
 	}
 	return pages
 }

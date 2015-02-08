@@ -32,10 +32,10 @@ func BuildServerConfig(persist PersistInterface) ServerConfig {
 		Data:       persist,
 		AssetNames: []string{"main.css", "map.png", "header.png", "favicon.png"},
 		PageFactory: &PageFactory{
-			AssetProvider:    &AssetProvider{assetsDirectory},
-			PageTemplateName: "template.html",
+			AssetProviderInterface: &AssetProvider{assetsDirectory},
+			PageTemplateName:       "template.html",
 			PageSpecs: []PageSpec{
-				PageSpec{AssetName: "home", Title: "Home", Route: RouteRoot},
+				PageSpec{AssetName: "home", Title: "Home", Route: RootRoute},
 				PageSpec{AssetName: "event", Title: "Event", Route: "event"},
 				PageSpec{AssetName: "rsvp", Title: "RSVP", Route: "rsvp"},
 			},
