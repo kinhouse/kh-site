@@ -18,7 +18,6 @@ var _ = Describe("Navigation", func() {
 	})
 
 	Describe("home page", func() {
-
 		It("should load", func() {
 			Expect(page.Navigate(baseUrl)).To(Succeed())
 			Expect(page).To(HaveURL(baseUrl + "/"))
@@ -28,6 +27,7 @@ var _ = Describe("Navigation", func() {
 			Expect(page.Navigate(baseUrl)).To(Succeed())
 			Expect(page.FindByLink("RSVP").Click()).To(Succeed())
 			Expect(page).To(HaveURL(baseUrl + "/rsvp"))
+			Expect(page).To(HaveTitle("Alana & Gabe: RSVP"))
 		})
 	})
 

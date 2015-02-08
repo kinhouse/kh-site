@@ -101,6 +101,16 @@ func (s ServerConfig) BuildRouter() *gin.Engine {
 	s.AddStaticAssetRoutes(r)
 	s.AddPageRoutes(r)
 
+	r.POST("/rsvp", func(c *gin.Context) {
+		var rsvp types.Rsvp
+		if !c.Bind(&rsvp) {
+			fmt.Printf("failed to bind")
+			return
+		}
+		fmt.Printf("got rsvp post: %+v\n", rsvp)
+		c.JSON(201, rsvp)
+	})
+
 	return r
 }
 

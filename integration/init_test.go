@@ -24,7 +24,7 @@ var agoutiDriver WebDriver
 
 var baseUrl string
 
-const port = 5000
+const port = 5555
 
 var _ = BeforeSuite(func() {
 	var err error
