@@ -1,5 +1,3 @@
-#!/bin/bash
-
 export APP_DIR="$(dirname "$0")/../"
 cd $APP_DIR
 export ASSETS_DIR=`pwd`/assets

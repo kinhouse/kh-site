@@ -1,5 +1,25 @@
-#!/bin/bash
+#! /usr/bin/env bash
+set -e
 
-source $(dirname "$0")/setup
+DIR=$(dirname $0)
 
-ginkgo -r .
+source $DIR/test-setup
+
+$DIR/unit
+
+$DIR/integration
+
+pushd $DIR/.. > /dev/null 2>&1
+    set +e
+    find . -path ./Godeps -prune -o -type f -print | grep "\.go$" | xargs go tool vet
+    EXIT_CODE=$?
+    set -e
+popd > /dev/null 2>&1
+
+
+export TEST_TYPE="FULL"
+if [[ $EXIT_CODE = 0 ]]; then
+    success "FULL"
+else
+    fail "vetting"
+fi
