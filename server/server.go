@@ -35,9 +35,9 @@ func BuildServerConfig(persist PersistInterface) ServerConfig {
 			AssetProvider:    &AssetProvider{assetsDirectory},
 			PageTemplateName: "template.html",
 			PageSpecs: []PageSpec{
-				PageSpec{"home", "Home", ""},
-				PageSpec{"event", "Event", "event"},
-				PageSpec{"rsvp", "RSVP", "rsvp"},
+				PageSpec{AssetName: "home", Title: "Home", Route: RouteRoot},
+				PageSpec{AssetName: "event", Title: "Event", Route: "event"},
+				PageSpec{AssetName: "rsvp", Title: "RSVP", Route: "rsvp"},
 			},
 		},
 	}

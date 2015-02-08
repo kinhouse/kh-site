@@ -12,6 +12,11 @@ type PageFactory struct {
 	PageSpecs        []PageSpec
 }
 
+const (
+	RouteRoot = ""
+	//RouteNone = "  ~~ NO ROUTE ~~ "
+)
+
 type PageSpec struct {
 	AssetName, Title, Route string
 }
