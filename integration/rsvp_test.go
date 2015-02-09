@@ -44,8 +44,7 @@ var _ = Describe("RSVPing to an invite", func() {
 		})
 		By("showing a friendly response", func() {
 			Expect(page).To(HaveURL(baseUrl + "/rsvp"))
-			// Expect(page).To(HaveTitle("RSVP: Declined"))
-			// Expect(page.Find(".acknowledgement")).To(HaveText("Too bad!"))
+			Expect(page.Find(".page")).To(HaveText("We're sorry you won't be making it, but thanks for letting us know!"))
 		})
 	})
 
@@ -69,7 +68,7 @@ var _ = Describe("RSVPing to an invite", func() {
 		})
 		By("showing a friendly response", func() {
 			Expect(page).To(HaveURL(baseUrl + "/rsvp"))
-			// Expect(page).To(HaveTitle("RSVP: Accepted"))
+			// Expect(page).To(HaveTitle("RSVP"))
 			// Expect(page.Find(".acknowledgement")).To(HaveText("Sweet!"))
 		})
 	})

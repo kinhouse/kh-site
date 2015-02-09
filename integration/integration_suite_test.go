@@ -3,15 +3,14 @@ package integration
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/sclevine/agouti/core"
 
 	"testing"
+	"time"
 
-	"github.com/kinhouse/kh-site/fakes"
 	"github.com/kinhouse/kh-site/server"
 )
 
@@ -38,13 +37,11 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(agoutiDriver.Start()).To(Succeed())
 
-	persist := fakes.Persist{}
-	serverConfig := server.BuildServerConfig(persist)
-	router := serverConfig.BuildRouter()
-	go router.Run(fmt.Sprintf(":%d", port))
+	s := server.BuildServer()
+	go s.Run(fmt.Sprintf(":%d", port))
 
 	baseUrl = fmt.Sprintf("http://localhost:%d", port)
-	WaitToBoot(baseUrl)
+	waitToBoot(baseUrl)
 
 })
 
@@ -52,8 +49,8 @@ var _ = AfterSuite(func() {
 	agoutiDriver.Stop()
 })
 
-func WaitToBoot(route string) {
-	fmt.Printf("Waiting for test server to boot on %s\n", route)
+func waitToBoot(route string) {
+	fmt.Printf("Waiting for server to boot on %s\n", route)
 	timer := time.After(0 * time.Second)
 	timeout := time.After(10 * time.Second)
 	for {
@@ -61,7 +58,8 @@ func WaitToBoot(route string) {
 		case <-timeout:
 			panic("Failed to boot!")
 		case <-timer:
-			_, err := http.Get(route)
+			resp, err := http.Get(route)
+			defer resp.Body.Close()
 			if err == nil {
 				fmt.Printf("Test server booted\n")
 				return

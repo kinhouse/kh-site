@@ -11,15 +11,26 @@ type AssetProviderInterface interface {
 }
 
 type PageFactory struct {
-	AssetProviderInterface
-	PageTemplateName string
-	PageSpecs        []PageSpec
+	assetProvider AssetProviderInterface
+	pageTemplate  *template.Template
+	staticPages   []PageSpec
 }
 
-const (
-	RootRoute = ""
-	NoRoute   = "  ~~ NO ROUTE ~~ "
-)
+func NewPageFactory(
+	assetProvider AssetProviderInterface,
+	staticPages []PageSpec) *PageFactory {
+
+	pageTemplate, err := template.ParseFiles(assetProvider.GetAssetPath("template.html"))
+	if err != nil {
+		panic(err)
+	}
+
+	return &PageFactory{
+		assetProvider,
+		pageTemplate,
+		staticPages,
+	}
+}
 
 type PageSpec struct {
 	AssetName, Title, Route string
@@ -31,17 +42,36 @@ type PageData struct {
 	PageSpec
 }
 
-func (f PageFactory) AssemblePages() map[string]string {
-	pageTemplate := f.loadPageTemplate()
+func (f PageFactory) GenerateDynamicPage(title, content string) []byte {
+	pageData := PageData{
+		NavItems: &f.staticPages,
+		Body:     content,
+		PageSpec: PageSpec{
+			AssetName: "",
+			Title:     title,
+			Route:     "~~NOROUTE~~",
+		},
+	}
+	return f.assemblePage(pageData)
+}
 
-	pages := map[string]string{}
-	for _, pageData := range f.AssemblePageData(f.PageSpecs) {
-		var b bytes.Buffer
-		err := pageTemplate.Execute(&b, pageData)
-		if err != nil {
-			panic(err)
-		}
-		pages[pageData.Route] = b.String()
+func (f PageFactory) assemblePage(pageData PageData) []byte {
+	var b bytes.Buffer
+	err := f.pageTemplate.Execute(&b, pageData)
+	if err != nil {
+		panic(err)
+	}
+	ret, err := ioutil.ReadAll(&b)
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func (f PageFactory) StaticPages() map[string][]byte {
+	pages := map[string][]byte{}
+	for _, pageData := range f.AssemblePageData(f.staticPages) {
+		pages[pageData.Route] = f.assemblePage(pageData)
 	}
 
 	return pages
@@ -49,34 +79,19 @@ func (f PageFactory) AssemblePages() map[string]string {
 
 func (f PageFactory) AssemblePageData(pageSpecs []PageSpec) []PageData {
 	var pages []PageData
-	var navItems []PageSpec
 
 	for _, pageSpec := range pageSpecs {
 		pages = append(pages, PageData{
 			PageSpec: pageSpec,
 			Body:     f.loadPageBody(pageSpec.AssetName),
+			NavItems: &f.staticPages,
 		})
-		if pageSpec.Route != NoRoute {
-			navItems = append(navItems, pageSpec)
-		}
-	}
-	for i := range pages {
-		pages[i].NavItems = &navItems
 	}
 	return pages
 }
 
-func (f PageFactory) loadPageTemplate() *template.Template {
-	pageTemplate, err := template.ParseFiles(f.GetAssetPath(f.PageTemplateName))
-	if err != nil {
-		panic(err)
-	}
-
-	return pageTemplate
-}
-
 func (f PageFactory) loadPageBody(pageName string) string {
-	body, err := ioutil.ReadFile(f.GetAssetPath(pageName + ".html"))
+	body, err := ioutil.ReadFile(f.assetProvider.GetAssetPath(pageName + ".html"))
 	if err != nil {
 		panic(err)
 	}
