@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kinhouse/kh-site/fakes"
 	"github.com/kinhouse/kh-site/server"
 )
 
@@ -25,19 +26,22 @@ var baseUrl string
 
 const port = 5555
 
+var localPersist *fakes.Persist
+
 var _ = BeforeSuite(func() {
 	var err error
 
 	// Choose a WebDriver:
 
-	agoutiDriver, err = PhantomJS()
+	//agoutiDriver, err = PhantomJS()
 	// agoutiDriver, err = Selenium()
-	// agoutiDriver, err = Chrome()
+	agoutiDriver, err = Chrome()
 
 	Expect(err).NotTo(HaveOccurred())
 	Expect(agoutiDriver.Start()).To(Succeed())
 
-	s := server.BuildServer()
+	localPersist = &fakes.Persist{}
+	s := server.BuildServer(localPersist)
 	go s.Run(fmt.Sprintf(":%d", port))
 
 	baseUrl = fmt.Sprintf("http://localhost:%d", port)

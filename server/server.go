@@ -49,7 +49,14 @@ func (s ServerConfig) AddRsvpPostHandler(e *gin.Engine) {
 		if !c.Bind(&rsvp) {
 			return
 		}
-		fmt.Printf("Got an RSVP: %+v\n", rsvp)
+
+		id, err := s.Data.InsertNewRSVP(rsvp)
+		if err != nil {
+			panic("persisting rsvp " + err.Error())
+		}
+
+		fmt.Printf("Inserted new RSVP (%d) : %+v\n", id, rsvp)
+
 		responseText := s.RsvpHandler(rsvp)
 		responseTitle := "♡"
 		if rsvp.Decline {

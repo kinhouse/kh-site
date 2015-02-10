@@ -6,15 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kinhouse/kh-site/persist"
 )
 
-func BuildServer() *gin.Engine {
-	persist, err := persist.NewPersist()
-	if err != nil {
-		panic(err)
-	}
-
+func BuildServer(persist PersistInterface) *gin.Engine {
 	assetProvider := &AssetProvider{getAssetsDirectory()}
 
 	pageSpecs := []PageSpec{

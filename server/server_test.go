@@ -46,7 +46,7 @@ var _ = Describe("Server", func() {
 	It("generates a dynamic response for a POST to /rsvp", func() {
 		fakePageFactory := &fakes.PageFactory{}
 		serverConfig := ServerConfig{
-			Data:        nil,
+			Data:        &fakes.Persist{},
 			AssetNames:  []string{},
 			PageFactory: fakePageFactory,
 			RsvpHandler: func(rsvp types.Rsvp) string {

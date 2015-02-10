@@ -12,14 +12,17 @@ import (
 //
 // Persist
 //
-type Persist struct{}
-
-func (p Persist) GetAllRSVPs() ([]types.Rsvp, error) {
-	return []types.Rsvp{}, nil
+type Persist struct {
+	Rsvps []types.Rsvp
 }
 
-func (p Persist) InsertNewRSVP(types.Rsvp) (int64, error) {
-	return 0, nil
+func (p *Persist) GetAllRSVPs() ([]types.Rsvp, error) {
+	return p.Rsvps, nil
+}
+
+func (p *Persist) InsertNewRSVP(rsvp types.Rsvp) (int64, error) {
+	p.Rsvps = append(p.Rsvps, rsvp)
+	return int64(len(p.Rsvps) - 1), nil
 }
 
 //
