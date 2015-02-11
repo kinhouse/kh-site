@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BuildServer(persist PersistInterface) *gin.Engine {
+func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 	assetProvider := &AssetProvider{getAssetsDirectory()}
 
 	pageSpecs := []PageSpec{
@@ -22,11 +22,12 @@ func BuildServer(persist PersistInterface) *gin.Engine {
 	assetNames := []string{"main.css", "map.png", "header.png", "favicon.png"}
 
 	serverConfig := ServerConfig{
-		Data:          persist,
-		AssetNames:    assetNames,
-		PageFactory:   pageFactory,
-		RsvpHandler:   RsvpHandler,
-		AssetProvider: assetProvider,
+		Data:                persist,
+		AssetNames:          assetNames,
+		PageFactory:         pageFactory,
+		RsvpHandler:         RsvpHandler,
+		AssetProvider:       assetProvider,
+		RsvpListCredentials: map[string]string{"admin": adminPassword},
 	}
 
 	router := serverConfig.BuildRouter()

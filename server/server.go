@@ -1,6 +1,9 @@
 package server
 
 import (
+	"encoding/csv"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/kinhouse/kh-site/types"
@@ -20,11 +23,12 @@ type PersistInterface interface {
 }
 
 type ServerConfig struct {
-	Data          PersistInterface
-	AssetNames    []string
-	RsvpHandler   func(types.Rsvp) string
-	PageFactory   PageFactoryInterface
-	AssetProvider AssetProviderInterface
+	Data                PersistInterface
+	AssetNames          []string
+	RsvpHandler         func(types.Rsvp) string
+	PageFactory         PageFactoryInterface
+	AssetProvider       AssetProviderInterface
+	RsvpListCredentials map[string]string
 }
 
 func (s ServerConfig) AddPageRoutes(e *gin.Engine) {
@@ -67,12 +71,44 @@ func (s ServerConfig) AddRsvpPostHandler(e *gin.Engine) {
 	})
 }
 
+func writeRSVPsAsCSV(rsvps []types.Rsvp, resp http.ResponseWriter) error {
+	w := csv.NewWriter(resp)
+	w.Write([]string{"FullName", "Email", "Count"})
+	for _, r := range rsvps {
+		w.Write([]string{r.FullName, r.Email, strconv.FormatInt(int64(r.Count), 10)})
+	}
+	w.Flush()
+	return w.Error()
+}
+
+func (s ServerConfig) AddRsvpListingHandler(e *gin.Engine) {
+	if s.RsvpListCredentials == nil {
+		fmt.Println("No credentials given for RSVP listing.  This feature won't be available")
+		return
+	}
+	e.GET("/rsvp/all",
+		gin.BasicAuth(s.RsvpListCredentials),
+		func(c *gin.Context) {
+			rsvps, err := s.Data.GetAllRSVPs()
+			if err != nil {
+				panic("reading rsvps " + err.Error())
+			}
+			c.Writer.Header().Set("Content-Type", "text/csv")
+			c.Writer.WriteHeader(http.StatusOK)
+			err = writeRSVPsAsCSV(rsvps, c.Writer)
+			if err != nil {
+				panic("error writing RSVPs as CSV file: " + err.Error())
+			}
+		})
+}
+
 func (s ServerConfig) BuildRouter() *gin.Engine {
 	r := gin.Default()
 
 	s.AddStaticAssetRoutes(r)
 	s.AddPageRoutes(r)
 	s.AddRsvpPostHandler(r)
+	s.AddRsvpListingHandler(r)
 
 	return r
 }

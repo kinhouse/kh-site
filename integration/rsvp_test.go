@@ -91,7 +91,6 @@ var _ = Describe("RSVPing to an invite", func() {
 				},
 			}))
 		})
-
 	})
 
 	Describe("dynamic UI", func() {
@@ -110,5 +109,4 @@ var _ = Describe("RSVPing to an invite", func() {
 
 		})
 	})
-
 })

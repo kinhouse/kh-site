@@ -41,7 +41,7 @@ var _ = BeforeSuite(func() {
 	Expect(agoutiDriver.Start()).To(Succeed())
 
 	localPersist = &fakes.Persist{}
-	s := server.BuildServer(localPersist)
+	s := server.BuildServer(localPersist, "test-password")
 	go s.Run(fmt.Sprintf(":%d", port))
 
 	baseUrl = fmt.Sprintf("http://localhost:%d", port)
