@@ -26,6 +26,7 @@ type ServerConfig struct {
 	Data                PersistInterface
 	AssetNames          []string
 	RsvpHandler         func(types.Rsvp) string
+	RsvpValidator       func(types.Rsvp) error
 	PageFactory         PageFactoryInterface
 	AssetProvider       AssetProviderInterface
 	RsvpListCredentials map[string]string
@@ -51,6 +52,14 @@ func (s ServerConfig) AddRsvpPostHandler(e *gin.Engine) {
 	e.POST("/rsvp", func(c *gin.Context) {
 		var rsvp types.Rsvp
 		if !c.Bind(&rsvp) {
+			return
+		}
+
+		err := s.RsvpValidator(rsvp)
+		if err != nil {
+			responseHTML := s.PageFactory.GenerateDynamicPage("Incomplete RSVP",
+				fmt.Sprintf("<h1>There was a problem with your RSVP</h1><p>%s</p>", err.Error()))
+			c.Data(http.StatusBadRequest, gin.MIMEHTML, responseHTML)
 			return
 		}
 

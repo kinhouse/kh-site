@@ -2,6 +2,7 @@ package server_test
 
 import (
 	"encoding/base64"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -44,33 +45,82 @@ var _ = Describe("Server", func() {
 		Expect(writer.Body.String()).To(ContainSubstring("<form"))
 	})
 
-	It("generates a dynamic response for a POST to /rsvp", func() {
-		fakePageFactory := &fakes.PageFactory{}
-		serverConfig := ServerConfig{
-			Data:        &fakes.Persist{},
-			AssetNames:  []string{},
-			PageFactory: fakePageFactory,
-			RsvpHandler: func(rsvp types.Rsvp) string {
-				return "Thank you for your response."
-			},
-		}
-		router := serverConfig.BuildRouter()
+	Describe("POSTing to /rsvp", func() {
+		Context("when the RSVP is valid", func() {
+			It("persists the RSVP and says thank you", func() {
+				fakePageFactory := &fakes.PageFactory{}
+				data := &fakes.Persist{}
+				serverConfig := ServerConfig{
+					Data:          data,
+					AssetNames:    []string{},
+					PageFactory:   fakePageFactory,
+					RsvpHandler:   func(rsvp types.Rsvp) string { return "Thank you for your response." },
+					RsvpValidator: func(rsvp types.Rsvp) error { return nil },
+				}
+				router := serverConfig.BuildRouter()
 
-		form := url.Values{}
-		form.Add("FullName", "Test User")
-		form.Add("Email", "user@example.com")
+				form := url.Values{}
+				form.Add("FullName", "Test User")
+				form.Add("Email", "user@example.com")
+				form.Add("Decline", "false")
+				form.Add("Count", "4")
 
-		request, err := http.NewRequest("POST", "/rsvp", strings.NewReader(form.Encode()))
-		if err != nil {
-			panic(err)
-		}
-		request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+				request, err := http.NewRequest("POST", "/rsvp", strings.NewReader(form.Encode()))
+				if err != nil {
+					panic(err)
+				}
+				request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-		router.ServeHTTP(writer, request)
+				router.ServeHTTP(writer, request)
 
-		Expect(writer.Code).To(Equal(http.StatusCreated))
-		body := writer.Body.String()
-		Expect(body).To(ContainSubstring("<body>Thank you for your response."))
+				Expect(writer.Code).To(Equal(http.StatusCreated))
+				body := writer.Body.String()
+				Expect(body).To(ContainSubstring("<body>Thank you for your response."))
+
+				Expect(data.Rsvps).To(Equal([]types.Rsvp{
+					types.Rsvp{
+						FullName: "Test User",
+						Email:    "user@example.com",
+						Decline:  false,
+						Count:    4,
+					},
+				}))
+			})
+		})
+		Context("when the RSVP is invalid", func() {
+			It("pretty prints the resulting error", func() {
+				fakePageFactory := &fakes.PageFactory{}
+				data := &fakes.Persist{}
+				serverConfig := ServerConfig{
+					Data:          data,
+					AssetNames:    []string{},
+					PageFactory:   fakePageFactory,
+					RsvpHandler:   func(rsvp types.Rsvp) string { return "nope" },
+					RsvpValidator: func(rsvp types.Rsvp) error { return errors.New("Invalid RSVP!") },
+				}
+				router := serverConfig.BuildRouter()
+
+				form := url.Values{}
+				form.Add("FullName", "Test User")
+				form.Add("Email", "user@example.com")
+				form.Add("Decline", "true")
+				form.Add("Count", "4")
+
+				request, err := http.NewRequest("POST", "/rsvp", strings.NewReader(form.Encode()))
+				if err != nil {
+					panic(err)
+				}
+				request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+				router.ServeHTTP(writer, request)
+
+				Expect(writer.Code).To(Equal(http.StatusBadRequest))
+				body := writer.Body.String()
+				Expect(body).To(ContainSubstring("Invalid RSVP!"))
+
+				Expect(data.Rsvps).To(BeEmpty())
+			})
+		})
 	})
 
 	Describe("GET to /rsvp/all", func() {

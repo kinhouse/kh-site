@@ -26,6 +26,7 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 		AssetNames:          assetNames,
 		PageFactory:         pageFactory,
 		RsvpHandler:         RsvpHandler,
+		RsvpValidator:       ValidateRsvp,
 		AssetProvider:       assetProvider,
 		RsvpListCredentials: map[string]string{"admin": adminPassword},
 	}
