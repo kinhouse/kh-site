@@ -6,5 +6,7 @@ export ASSETS_DIR=`pwd`/assets
 # https://console.developers.google.com/project/kh-site/apiui/credential
 export GOOGLE_CLOUD_KEY=`cat config/google-cloud-key.json`
 
+export PASSWORD=password
+
 export PORT=5000
 

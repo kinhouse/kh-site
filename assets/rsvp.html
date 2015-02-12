@@ -20,7 +20,7 @@ window.onload = function(){
     <p><label>Name: <input name="FullName" required></label></p>
     <p><label>Email: <input name="Email" type="email" required ></label></p>
     <p><label><input required type="radio" name="DeclineInvite" value="false" onchange="updateCountVisibility(this.checked)">Yes, looking forward to it!</label></p>
-    <p><label><input type="radio" name="DeclineInvite" value="true" onchange="updateCountVisibility(!this.checked)">No, I will not be attending</label></p>
+    <p><label><input required type="radio" name="DeclineInvite" value="true" onchange="updateCountVisibility(!this.checked)">No, I will not be attending</label></p>
     <p><label hidden id="count_ui">Great! How many of you? <select id="count" name="Count" disabled >
         <option value="1">Just me (1)</option>
         <option value="2">Two of us (2)</option>
@@ -30,5 +30,5 @@ window.onload = function(){
         <option value="6">Group of 6</option>
       </select>
     </label></p>
-    <p><input type="submit"></p>
+    <p><input type="submit" value="Submit"></p>
 </form>
