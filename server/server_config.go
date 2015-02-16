@@ -15,6 +15,7 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 		PageSpec{AssetName: "home", Title: "Home", Route: ""},
 		PageSpec{AssetName: "event", Title: "Event", Route: "event"},
 		PageSpec{AssetName: "travel", Title: "Travel", Route: "travel"},
+		PageSpec{AssetName: "gifts", Title: "Gifts", Route: "gifts"},
 		PageSpec{AssetName: "rsvp", Title: "RSVP", Route: "rsvp"},
 	}
 

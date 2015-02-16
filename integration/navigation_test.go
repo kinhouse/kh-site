@@ -44,6 +44,13 @@ var _ = Describe("Navigation", func() {
 			Expect(page).To(HaveTitle("Alana & Gabe: Travel"))
 		})
 
+		It("should include a link to the gifts page", func() {
+			Expect(page.Navigate(baseUrl)).To(Succeed())
+			Expect(page.FindByLink("Gifts").Click()).To(Succeed())
+			Expect(page).To(HaveURL(baseUrl + "/gifts"))
+			Expect(page).To(HaveTitle("Alana & Gabe: Gifts"))
+		})
+
 	})
 
 	AfterEach(func() {
