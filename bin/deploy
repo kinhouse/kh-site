@@ -1,0 +1,81 @@
+#!/bin/bash -e -u
+#
+#   A simple blue/green deployment script for CloudFoundry.
+#
+#   Prerequisites:
+#      - Your app, already deployed to CloudFoundry
+#      - A custom apex domain already mapped to it
+#
+#   Set the following env vars in config/deployment:
+#
+#   CF_ORG / CF_SPACE : organization and space in CF containing your app
+#              DOMAIN : custom apex domain that you've already configured
+#              CF_APP : A name for your app
+#
+
+APP_DIR="$(dirname $0)/../"
+pushd $APP_DIR
+
+source config/deployment
+
+CF_APP_TICK="${CF_APP}-tick"
+CF_APP_TOCK="${CF_APP}-tock"
+
+GREEN="\033[1;32m"
+RED="\033[0;31m"
+CYAN="\033[1;36m"
+YELLOW="\033[0;33m"
+NONE="\033[0m"
+
+echo "Checking for CF manifest file..."
+ls manifest.yml
+echo -e "${GREEN}OK${NONE}"
+
+ERR_BAD_INITIAL_STATE="$RED Green domain $DOMAIN must be assigned to exactly one of the two apps: $YELLOW $CF_APP_TICK $NONE or $YELLOW $CF_APP_TOCK $NONE $NONE"
+
+cf target -o $CF_ORG -s $CF_SPACE
+cf apps
+
+set +e
+    tick="$(cf app $CF_APP_TICK | grep urls | grep $DOMAIN)"
+    tock="$(cf app $CF_APP_TOCK | grep urls | grep $DOMAIN)"
+set -e
+
+if [[ "$tick" == "$tock" ]]; then
+    echo -e "$ERR_BAD_INITIAL_STATE"
+    exit 5
+fi
+
+old_app=""
+new_app=""
+if [[ "$tick" == *"$DOMAIN"* ]]; then
+    old_app=$CF_APP_TICK
+    new_app=$CF_APP_TOCK
+elif [[ "$tock" == *"$DOMAIN"* ]]; then
+    old_app=$CF_APP_TOCK
+    new_app=$CF_APP_TICK
+else
+    echo -e "$ERR_BAD_INITIAL_STATE"
+    exit 6
+fi
+
+echo ""
+echo -e "Old target: $CYAN $old_app $NONE"
+echo -e "New target: $CYAN $new_app $NONE"
+
+echo ""
+echo -e "${GREEN}Step 1$NONE: Fresh deploy to $CYAN $new_app $NONE"
+cf push $new_app
+
+echo ""
+echo -e "${GREEN}Step 2$NONE: Map $YELLOW $DOMAIN $NONE and $YELLOW www.$DOMAIN $NONE to $CYAN $new_app $NONE"
+cf map-route $new_app $DOMAIN
+cf map-route $new_app $DOMAIN -n www
+
+echo ""
+echo -e "${GREEN}Step 3$NONE: Unmap $YELLOW $DOMAIN $NONE and $YELLOW www.$DOMAIN $NONE from $CYAN $old_app $NONE"
+cf unmap-route $old_app $DOMAIN
+cf unmap-route $old_app $DOMAIN -n www
+
+echo ""
+echo -e "${GREEN}Finished!${NONE}"
