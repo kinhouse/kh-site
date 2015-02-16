@@ -29,6 +29,21 @@ var _ = Describe("Navigation", func() {
 			Expect(page).To(HaveURL(baseUrl + "/rsvp"))
 			Expect(page).To(HaveTitle("Alana & Gabe: RSVP"))
 		})
+
+		It("should include a link to the event page", func() {
+			Expect(page.Navigate(baseUrl)).To(Succeed())
+			Expect(page.FindByLink("Event").Click()).To(Succeed())
+			Expect(page).To(HaveURL(baseUrl + "/event"))
+			Expect(page).To(HaveTitle("Alana & Gabe: Event"))
+		})
+
+		It("should include a link to the travel page", func() {
+			Expect(page.Navigate(baseUrl)).To(Succeed())
+			Expect(page.FindByLink("Travel").Click()).To(Succeed())
+			Expect(page).To(HaveURL(baseUrl + "/travel"))
+			Expect(page).To(HaveTitle("Alana & Gabe: Travel"))
+		})
+
 	})
 
 	AfterEach(func() {
