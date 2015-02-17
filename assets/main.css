@@ -39,9 +39,11 @@ footer {
     margin: 10px;
     border-top: 1px solid #d5d5d5;
     font-size: .8em;
+    max-width: 1000px;
 }
 nav {
  border-bottom: 1px solid #d5d5d5;
+ max-width: 1000px;
 }
 h2 {
     font-size: 1.3em;
@@ -53,33 +55,66 @@ h2 {
 .page {
     margin: 10px;
     min-height: 300px;
+    max-width: 1000px;
+    min-width: 200px;
 }
 
-.nameHeader {
-    margin-top: 20px;
-    line-height: 62%;
-    font-size: 6vw;
-    text-align: center;
+@media (max-width: 1000px) {
+    .nameHeader {
+        margin-top: 20px;
+        line-height: 62%;
+        font-size: 8vw;
+        text-align: center;
+    }
+    .nameHeader .first-middle {
+        font-size: 5.5vw;
+        vertical-align: top;
+        font-weight: 100
+    }
+    .nameHeader .last-heavy {
+        font-weight: 400;
+    }
+    .nameHeader .last-light {
+        font-weight: 300;
+    }
+    .nameHeader .gabe {
+        margin-top: 1px;
+    }
+    .nameHeader .alana {
+        position: relative;
+        left: 8.4vw;
+    }
 }
-.nameHeader .first-middle {
-    font-size: 4.5vw;
-    vertical-align: top;
-    font-weight: 100
+
+@media (min-width: 1001px) {
+    .nameHeader {
+        margin-top: 20px;
+        line-height: 62%;
+        font-size: 5em;
+        text-align: center;
+    }
+    .nameHeader .first-middle {
+        font-size: 0.7em;
+        vertical-align: top;
+        font-weight: 100
+    }
+    .nameHeader .last-heavy {
+        font-weight: 400;
+    }
+    .nameHeader .last-light {
+        font-weight: 300;
+    }
+    .nameHeader .gabe {
+        margin-top: 1px;
+    }
+    .nameHeader .alana {
+        position: relative;
+        left: 1.05em;
+    }
 }
-.nameHeader .last-heavy {
-    font-weight: 400;
-}
-.nameHeader .last-light {
-    font-weight: 300;
-}
-.nameHeader .gabe {
-    position: relative;
-    right: 6.47vw;
-    margin-top: 4px;
-}
+
 
 .frontCenter {
     align-self: center;
     text-align: center;
-    min-width: 300px;
 }
