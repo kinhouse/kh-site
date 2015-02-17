@@ -9,8 +9,9 @@
 #   Set the following env vars in config/deployment:
 #
 #   CF_ORG / CF_SPACE : organization and space in CF containing your app
-#              DOMAIN : custom apex domain that you've already configured
+#           CF_DOMAIN : Shared domain for CF apps (on run.pivotal.io, it's cfapps.io)
 #              CF_APP : A name for your app
+#       CUSTOM_DOMAIN : custom apex domain that you've already configured
 #
 
 APP_DIR="$(dirname $0)/../"
@@ -20,6 +21,7 @@ source config/deployment
 
 CF_APP_TICK="${CF_APP}-tick"
 CF_APP_TOCK="${CF_APP}-tock"
+CF_ROUTE="${CF_APP}.${CF_DOMAIN}"
 
 GREEN="\033[1;32m"
 RED="\033[0;31m"
@@ -31,14 +33,14 @@ echo "Checking for CF manifest file..."
 ls manifest.yml
 echo -e "${GREEN}OK${NONE}"
 
-ERR_BAD_INITIAL_STATE="$RED Green domain $DOMAIN must be assigned to exactly one of the two apps: $YELLOW $CF_APP_TICK $NONE or $YELLOW $CF_APP_TOCK $NONE $NONE"
+ERR_BAD_INITIAL_STATE="$RED Green domain $CUSTOM_DOMAIN must be assigned to exactly one of the two apps: $YELLOW $CF_APP_TICK $NONE or $YELLOW $CF_APP_TOCK $NONE $NONE"
 
 cf target -o $CF_ORG -s $CF_SPACE
 cf apps
 
 set +e
-    tick="$(cf app $CF_APP_TICK | grep urls | grep $DOMAIN)"
-    tock="$(cf app $CF_APP_TOCK | grep urls | grep $DOMAIN)"
+    tick="$(cf app $CF_APP_TICK | grep urls | grep $CUSTOM_DOMAIN)"
+    tock="$(cf app $CF_APP_TOCK | grep urls | grep $CUSTOM_DOMAIN)"
 set -e
 
 if [[ "$tick" == "$tock" ]]; then
@@ -48,10 +50,10 @@ fi
 
 old_app=""
 new_app=""
-if [[ "$tick" == *"$DOMAIN"* ]]; then
+if [[ "$tick" == *"$CUSTOM_DOMAIN"* ]]; then
     old_app=$CF_APP_TICK
     new_app=$CF_APP_TOCK
-elif [[ "$tock" == *"$DOMAIN"* ]]; then
+elif [[ "$tock" == *"$CUSTOM_DOMAIN"* ]]; then
     old_app=$CF_APP_TOCK
     new_app=$CF_APP_TICK
 else
@@ -60,22 +62,23 @@ else
 fi
 
 echo ""
-echo -e "Old target: $CYAN $old_app $NONE"
-echo -e "New target: $CYAN $new_app $NONE"
+echo -e "Will shift from $CYAN $old_app $NONE  TO  $CYAN $new_app $NONE"
 
 echo ""
 echo -e "${GREEN}Step 1$NONE: Fresh deploy to $CYAN $new_app $NONE"
 cf push $new_app
 
 echo ""
-echo -e "${GREEN}Step 2$NONE: Map $YELLOW $DOMAIN $NONE and $YELLOW www.$DOMAIN $NONE to $CYAN $new_app $NONE"
-cf map-route $new_app $DOMAIN
-cf map-route $new_app $DOMAIN -n www
+echo -e "${GREEN}Step 2$NONE: Map $YELLOW ${CF_ROUTE}${NONE}, $YELLOW $CUSTOM_DOMAIN $NONE and $YELLOW www.$CUSTOM_DOMAIN $NONE to $CYAN $new_app $NONE"
+cf map-route $new_app $CF_DOMAIN -n $CF_APP
+cf map-route $new_app $CUSTOM_DOMAIN
+cf map-route $new_app $CUSTOM_DOMAIN -n www
 
 echo ""
-echo -e "${GREEN}Step 3$NONE: Unmap $YELLOW $DOMAIN $NONE and $YELLOW www.$DOMAIN $NONE from $CYAN $old_app $NONE"
-cf unmap-route $old_app $DOMAIN
-cf unmap-route $old_app $DOMAIN -n www
+echo -e "${GREEN}Step 3$NONE: Unmap $YELLOW ${CF_ROUTE}${NONE}, $YELLOW $CUSTOM_DOMAIN $NONE and $YELLOW www.$CUSTOM_DOMAIN $NONE from $CYAN $old_app $NONE"
+cf unmap-route $old_app $CF_DOMAIN -n $CF_APP
+cf unmap-route $old_app $CUSTOM_DOMAIN
+cf unmap-route $old_app $CUSTOM_DOMAIN -n www
 
 echo ""
 echo -e "${GREEN}Finished!${NONE}"
