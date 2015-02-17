@@ -21,7 +21,7 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 
 	pageFactory := NewPageFactory(assetProvider, pageSpecs)
 
-	assetNames := []string{"main.css", "map.png", "header.png", "favicon.png"}
+	assetNames := assetProvider.ListAllNonHTML()
 
 	serverConfig := ServerConfig{
 		Data:                persist,
