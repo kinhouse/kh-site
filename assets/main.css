@@ -39,11 +39,11 @@ footer {
     margin: 10px;
     border-top: 1px solid #d5d5d5;
     font-size: .8em;
-    max-width: 1000px;
+    max-width: 1250px;
 }
 nav {
  border-bottom: 1px solid #d5d5d5;
- max-width: 1000px;
+ max-width: 1250px;
 }
 h2 {
     font-size: 1.3em;
@@ -53,13 +53,57 @@ h2 {
 }
 
 .page {
-    margin: 10px;
+    margin: 5px;
     min-height: 300px;
-    max-width: 1000px;
+    max-width: 1250px;
     min-width: 200px;
 }
 
-@media (max-width: 1000px) {
+.wrapping {
+    overflow: hidden;
+}
+.wrapped_box_3 {
+    position: relative;
+    float: left;
+    padding-right: 20px;
+}
+@media (max-width: 500px) {
+    .wrapped_box_3 {
+        width: 99%;
+    }
+}
+@media (min-width: 501px) and (max-width:800px) {
+    .wrapped_box_3 {
+        width: 43%;
+    }
+}
+
+@media (min-width: 801px) {
+    .wrapped_box_3 {
+        width: 30%;
+    }
+}
+
+.wrapped_box_2 {
+    position: relative;
+    float: left;
+    padding-right: 25px;
+}
+@media (max-width: 500px) {
+    .wrapped_box_2 {
+        width: 99%;
+    }
+}
+@media (min-width: 801px) {
+    .wrapped_box_2 {
+        width: 43%;
+    }
+}
+
+
+
+
+@media (max-width: 1200px) {
     .nameHeader {
         margin-top: 20px;
         line-height: 62%;
@@ -86,7 +130,7 @@ h2 {
     }
 }
 
-@media (min-width: 1001px) {
+@media (min-width: 1201px) {
     .nameHeader {
         margin-top: 20px;
         line-height: 62%;
