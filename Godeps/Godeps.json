@@ -26,9 +26,9 @@
 			"Rev": "8adf9e1730c55cdc590de7d49766cb2acc88d8f2"
 		},
 		{
-			"ImportPath": "github.com/sclevine/agouti/core",
-			"Comment": "v1-latest-25-gd7cec9c",
-			"Rev": "d7cec9c492f17b190e32249192b728d61159d2a5"
+			"ImportPath": "github.com/sclevine/agouti",
+			"Comment": "2.0-6-g70f7838",
+			"Rev": "70f7838ca8d29ec3e952ed550e2fa0979bdf7ca0"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",

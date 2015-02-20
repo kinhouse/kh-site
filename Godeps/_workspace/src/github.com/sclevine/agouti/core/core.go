@@ -1,46 +1,23 @@
-// Package core is a WebDriver API for Go.
+// Package core is DEPRECATED and will not receive future updates.
+// Please use "github.com/sclevine/agouti" instead.
 package core
 
 import (
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/sclevine/agouti/core/internal/api"
-	"github.com/sclevine/agouti/core/internal/service"
-	"github.com/sclevine/agouti/core/internal/session"
+	"github.com/sclevine/agouti/api"
 )
 
-// Chrome returns an instance of a ChromeDriver WebDriver.
-func Chrome() (WebDriver, error) {
-	chrome := &service.Service{
-		URLTemplate: "http://{{.Address}}",
-		CmdTemplate: []string{"chromedriver", "--silent", "--port={{.Port}}"},
-		Timeout:     5 * time.Second,
-	}
-	return &driver{service: chrome}, nil
+func init() {
+	fmt.Fprintln(os.Stderr, `****************`)
+	fmt.Fprintln(os.Stderr, `NOTICE: "github.com/sclevine/agouti/core" has been deprecated in favor of "github.com/sclevine/agouti" and may soon perish.`)
+	fmt.Fprintln(os.Stderr, `Please switch to "github.com/sclevine/agouti" (which does not encourage dot-imports) as soon as possible.`)
+	fmt.Fprintln(os.Stderr, `****************`)
 }
 
-// PhantomJS returns an instance of a PhantomJS WebDriver.
-func PhantomJS() (WebDriver, error) {
-	phantomJS := &service.Service{
-		URLTemplate: "http://{{.Address}}",
-		CmdTemplate: []string{"phantomjs", "--webdriver={{.Address}}"},
-		Timeout:     5 * time.Second,
-	}
-	return &driver{service: phantomJS}, nil
-}
-
-// Selenium returns an instance of a Selenium WebDriver.
-func Selenium() (WebDriver, error) {
-	selenium := &service.Service{
-		URLTemplate: "http://{{.Address}}/wd/hub",
-		CmdTemplate: []string{"selenium-server", "-port", "{{.Port}}"},
-		Timeout:     5 * time.Second,
-	}
-	return &driver{service: selenium}, nil
-}
-
-// CustomWebDriver returns an instance of a WebDriver specified by
+// NewWebDriver returns an instance of a WebDriver specified by
 // a templated URL and command. The URL should be the location of the
 // WebDriver Wire Protocol web service brought up by the command. The
 // command should be provided as a list of arguments (which are each
@@ -54,28 +31,39 @@ func Selenium() (WebDriver, error) {
 //
 // Selenium JAR example:
 //   command := []string{"java", "-jar", "selenium-server.jar", "-port", "{{.Port}}"}
-//   core.CustomWebDriver("http://{{.Address}}/wd/hub", command)
-func CustomWebDriver(url string, command []string, timeout ...time.Duration) WebDriver {
-	if len(timeout) == 0 {
-		timeout = []time.Duration{5 * time.Second}
+//   core.NewWebDriver("http://{{.Address}}/wd/hub", command)
+func NewWebDriver(url string, command []string, timeout ...time.Duration) WebDriver {
+	apiWebDriver := api.NewWebDriver(url, command)
+	if len(timeout) > 0 {
+		apiWebDriver.Timeout = timeout[0]
 	}
-	selenium := &service.Service{
-		URLTemplate: url,
-		CmdTemplate: command,
-		Timeout:     timeout[0],
-	}
-	return &driver{service: selenium}
+	return &webDriver{apiWebDriver}
 }
 
-// Connect opens a session using the provided WebDriver URL and returns a Page.
-func Connect(capabilities Capabilities, url string) (Page, error) {
-	pageSession, err := session.Open(url, capabilities)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open WebDriver session: %s", err)
-	}
+// ChromeDriver returns an instance of a ChromeDriver WebDriver.
+func ChromeDriver() WebDriver {
+	return NewWebDriver("http://{{.Address}}", []string{"chromedriver", "--silent", "--port={{.Port}}"})
+}
 
-	client := &api.Client{Session: pageSession}
-	return newPage(client), nil
+// PhantomJS returns an instance of a PhantomJS WebDriver.
+// The return error is deprecated and will always be nil.
+func PhantomJS() (WebDriver, error) {
+	return NewWebDriver("http://{{.Address}}", []string{"phantomjs", "--webdriver={{.Address}}"}), nil
+}
+
+// Selenium returns an instance of a Selenium WebDriver.
+// The return error is deprecated and will always be nil.
+func Selenium() (WebDriver, error) {
+	return NewWebDriver("http://{{.Address}}/wd/hub", []string{"selenium-server", "-port", "{{.Port}}"}), nil
+}
+
+// NewPage opens a Page using the provided WebDriver URL.
+func NewPage(url string, desired Capabilities) (Page, error) {
+	session, err := api.Open(url, desired.(capabilities))
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to WebDriver: %s", err)
+	}
+	return newPage(session), nil
 }
 
 // SauceLabs opens a Sauce Labs session and returns a Page. Does not support Sauce Connect.
@@ -90,11 +78,9 @@ func SauceLabs(name, platform, browser, version, username, key string) (Page, er
 		"accessKey":   key,
 	}
 
-	pageSession, err := session.Open(url, capabilities)
+	session, err := api.Open(url, capabilities)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open connection to Sauce Labs: %s", err)
 	}
-
-	client := &api.Client{Session: pageSession}
-	return newPage(client), nil
+	return newPage(session), nil
 }

@@ -4,20 +4,20 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti/api"
 )
 
 type ElementRepository struct {
-	Client elementClient
+	Client ElementClient
 }
 
-type elementClient interface {
+type ElementClient interface {
 	GetElement(selector api.Selector) (*api.Element, error)
 	GetElements(selector api.Selector) ([]*api.Element, error)
 }
 
 type Element interface {
-	elementClient
+	ElementClient
 	GetText() (string, error)
 	GetAttribute(attribute string) (string, error)
 	GetCSS(property string) (string, error)
@@ -82,7 +82,7 @@ func (e *ElementRepository) Get(selectors []Selector) ([]Element, error) {
 	return lastElements, nil
 }
 
-func retrieveElements(client elementClient, selector Selector) ([]Element, error) {
+func retrieveElements(client ElementClient, selector Selector) ([]Element, error) {
 	if selector.Single {
 		elements, err := client.GetElements(selector.API())
 		if err != nil {

@@ -3,7 +3,8 @@ package core
 import (
 	"time"
 
-	"github.com/sclevine/agouti/core/internal/api"
+	"github.com/sclevine/agouti"
+	"github.com/sclevine/agouti/api"
 	"github.com/sclevine/agouti/core/internal/page"
 	"github.com/sclevine/agouti/core/internal/selection"
 )
@@ -21,7 +22,7 @@ type Page interface {
 	Navigate(url string) error
 
 	// SetCookie sets a cookie on the page.
-	SetCookie(cookie WebCookie) error
+	SetCookie(cookie agouti.Cookie) error
 
 	// DeleteCookie deletes a cookie on the page by name.
 	DeleteCookie(name string) error
@@ -128,7 +129,7 @@ type Log struct {
 	Time time.Time
 }
 
-func newPage(client *api.Client) Page {
-	pageSelection := &userSelection{selection.NewSelection(client)}
-	return &userPage{&page.Page{Client: client}, pageSelection}
+func newPage(session *api.Session) Page {
+	pageSelection := &userSelection{selection.NewSelection(session)}
+	return &userPage{&page.Page{Session: session}, pageSelection}
 }
