@@ -3,17 +3,17 @@ package integration
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core"
+	"github.com/sclevine/agouti"
 	. "github.com/sclevine/agouti/matchers"
 )
 
 var _ = Describe("Navigation", func() {
-	var page Page
+	var page *agouti.Page
 
 	BeforeEach(func() {
 		var err error
 
-		page, err = agoutiDriver.Page()
+		page, err = agoutiDriver.NewPage()
 		Expect(err).NotTo(HaveOccurred())
 	})
 

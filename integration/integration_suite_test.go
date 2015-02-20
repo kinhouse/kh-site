@@ -3,13 +3,12 @@ package integration
 import (
 	"fmt"
 	"net/http"
+	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core"
-
-	"testing"
-	"time"
+	"github.com/sclevine/agouti"
 
 	"github.com/kinhouse/kh-site/fakes"
 	"github.com/kinhouse/kh-site/server"
@@ -20,7 +19,7 @@ func TestKhSite(t *testing.T) {
 	RunSpecs(t, "KhSite Suite")
 }
 
-var agoutiDriver WebDriver
+var agoutiDriver *agouti.WebDriver
 
 var baseUrl string
 
@@ -33,9 +32,9 @@ var _ = BeforeSuite(func() {
 
 	// Choose a WebDriver:
 
-	//agoutiDriver, err = PhantomJS()
-	// agoutiDriver, err = Selenium()
-	agoutiDriver, err = Chrome()
+	// agoutiDriver = agouti.PhantomJS()
+	// agoutiDriver = agouti.Selenium()
+	agoutiDriver = agouti.ChromeDriver()
 
 	Expect(err).NotTo(HaveOccurred())
 	Expect(agoutiDriver.Start()).To(Succeed())

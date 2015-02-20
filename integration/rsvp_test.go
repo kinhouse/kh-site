@@ -4,16 +4,16 @@ import (
 	"github.com/kinhouse/kh-site/types"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/sclevine/agouti/core"
+	"github.com/sclevine/agouti"
 	. "github.com/sclevine/agouti/matchers"
 )
 
 var _ = Describe("RSVPing to an invite", func() {
-	var page Page
+	var page *agouti.Page
 
 	BeforeEach(func() {
 		var err error
-		page, err = agoutiDriver.Page()
+		page, err = agoutiDriver.NewPage()
 		Expect(err).NotTo(HaveOccurred())
 		localPersist.Rsvps = []types.Rsvp{}
 	})
