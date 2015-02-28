@@ -52,6 +52,9 @@ h2 {
     color: #222
 }
 
+.roseDrawing {
+    width: 45vw;
+}
 .page {
     margin: 5px;
     min-height: 300px;
