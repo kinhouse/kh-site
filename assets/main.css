@@ -32,6 +32,9 @@ p {
     line-height: 1.3em;
     color: #333;
 }
+body li {
+    margin-bottom: 1em;
+}
 .indented {
     text-indent: 20px;
 }
