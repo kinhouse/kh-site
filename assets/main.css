@@ -152,6 +152,9 @@ h2 {
 .leftjust {
     text-align: left;
 }
+.lightly-padded {
+    margin: 1em;
+}
 .padded {
     padding: 4vw;
     max-width: 20em;
