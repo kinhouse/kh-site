@@ -132,6 +132,9 @@ h2 {
     left: 11.61vw;
     bottom: -3.1vw;
 }
+.full-width {
+    width: 100%;
+}
 .lower-grid {
     width: 80%;
     font-size: 1.8vw;
