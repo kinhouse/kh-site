@@ -22,6 +22,7 @@ source config/deployment
 CF_APP_TICK="${CF_APP}-tick"
 CF_APP_TOCK="${CF_APP}-tock"
 CF_ROUTE="${CF_APP}.${CF_DOMAIN}"
+CF_PUSH_ARGS="-s cflinuxfs2"
 
 GREEN="\033[1;32m"
 RED="\033[0;31m"
@@ -66,7 +67,7 @@ echo -e "Will shift from $CYAN $old_app $NONE  TO  $CYAN $new_app $NONE"
 
 echo ""
 echo -e "${GREEN}Step 1$NONE: Fresh deploy to $CYAN $new_app $NONE"
-cf push $new_app
+cf push $new_app $CF_PUSH_ARGS
 
 echo ""
 echo -e "${GREEN}Step 2$NONE: Map $YELLOW ${CF_ROUTE}${NONE}, $YELLOW $CUSTOM_DOMAIN $NONE and $YELLOW www.$CUSTOM_DOMAIN $NONE to $CYAN $new_app $NONE"
