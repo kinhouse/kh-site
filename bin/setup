@@ -4,7 +4,7 @@ export ASSETS_DIR=`pwd`/assets
 
 # download cloud private key file from here
 # https://console.developers.google.com/project/kh-site/apiui/credential
-export GOOGLE_CLOUD_KEY=`cat config/google-cloud-key.json`
+export GOOGLE_CLOUD_KEY=`cat config/google-cloud-key-test.json`
 
 export PASSWORD=password
 
