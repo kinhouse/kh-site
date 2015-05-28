@@ -23,11 +23,14 @@ var _ = Describe("Navigation", func() {
 			Expect(page).To(HaveURL(baseUrl + "/"))
 		})
 
-		It("should include a link to the RSVP page", func() {
+		It("should not include a link to the RSVP page", func() {
 			Expect(page.Navigate(baseUrl)).To(Succeed())
-			Expect(page.FindByLink("RSVP").Click()).To(Succeed())
-			Expect(page).To(HaveURL(baseUrl + "/rsvp"))
-			Expect(page).To(HaveTitle("Alana & Gabe: RSVP"))
+			Expect(page.FindByLink("RSVP").Click()).NotTo(Succeed())
+		})
+
+		It("should redirect all requests to /rsvp to the home page", func() {
+			Expect(page.Navigate(baseUrl + "/rsvp")).To(Succeed())
+			Expect(page).To(HaveURL(baseUrl + "/"))
 		})
 
 		It("should include a link to the event page", func() {

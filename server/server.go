@@ -19,14 +19,11 @@ type PageFactoryInterface interface {
 
 type PersistInterface interface {
 	GetAllRSVPs() ([]types.Rsvp, error)
-	InsertNewRSVP(types.Rsvp) (int64, error)
 }
 
 type ServerConfig struct {
 	Data                PersistInterface
 	AssetNames          []string
-	RsvpHandler         func(types.Rsvp) string
-	RsvpValidator       func(types.Rsvp) error
 	PageFactory         PageFactoryInterface
 	AssetProvider       AssetProviderInterface
 	RsvpListCredentials map[string]string
@@ -46,38 +43,6 @@ func (s ServerConfig) AddStaticAssetRoutes(e *gin.Engine) {
 		assetPath := s.AssetProvider.GetAssetPath(name)
 		e.GET("/"+name, func(c *gin.Context) { c.File(assetPath) })
 	}
-}
-
-func (s ServerConfig) AddRsvpPostHandler(e *gin.Engine) {
-	e.POST("/rsvp", func(c *gin.Context) {
-		var rsvp types.Rsvp
-		if !c.Bind(&rsvp) {
-			return
-		}
-
-		err := s.RsvpValidator(rsvp)
-		if err != nil {
-			responseHTML := s.PageFactory.GenerateDynamicPage("Incomplete RSVP",
-				fmt.Sprintf("<h1>There was a problem with your RSVP</h1><p>%s</p>", err.Error()))
-			c.Data(http.StatusBadRequest, gin.MIMEHTML, responseHTML)
-			return
-		}
-
-		id, err := s.Data.InsertNewRSVP(rsvp)
-		if err != nil {
-			panic("persisting rsvp " + err.Error())
-		}
-
-		fmt.Printf("Inserted new RSVP (%d) : %+v\n", id, rsvp)
-
-		responseText := s.RsvpHandler(rsvp)
-		responseTitle := "♡"
-		if rsvp.Decline {
-			responseTitle = "☹"
-		}
-		responseHtml := s.PageFactory.GenerateDynamicPage(responseTitle, responseText)
-		c.Data(http.StatusCreated, gin.MIMEHTML, responseHtml)
-	})
 }
 
 func writeRSVPsAsCSV(rsvps []types.Rsvp, resp http.ResponseWriter) error {
@@ -111,13 +76,19 @@ func (s ServerConfig) AddRsvpListingHandler(e *gin.Engine) {
 		})
 }
 
+func (s ServerConfig) AddRsvpRedirect(e *gin.Engine) {
+	e.GET("/rsvp", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/")
+	})
+}
+
 func (s ServerConfig) BuildRouter() *gin.Engine {
 	r := gin.Default()
 
 	s.AddStaticAssetRoutes(r)
 	s.AddPageRoutes(r)
-	s.AddRsvpPostHandler(r)
 	s.AddRsvpListingHandler(r)
+	s.AddRsvpRedirect(r)
 
 	return r
 }

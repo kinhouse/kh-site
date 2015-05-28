@@ -2,11 +2,8 @@ package server_test
 
 import (
 	"encoding/base64"
-	"errors"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 
 	"github.com/kinhouse/kh-site/fakes"
 	. "github.com/kinhouse/kh-site/server"
@@ -25,7 +22,7 @@ var _ = Describe("Server", func() {
 
 	It("delegates to the page factory for static pages", func() {
 		fakePageFactory := &fakes.PageFactory{
-			FD_StaticPages: map[string][]byte{"rsvp": []byte("Some <form></form> goes here.")},
+			FD_StaticPages: map[string][]byte{"whatever": []byte("Some <form></form> goes here.")},
 		}
 		serverConfig := ServerConfig{
 			Data:        nil,
@@ -34,7 +31,7 @@ var _ = Describe("Server", func() {
 		}
 		router := serverConfig.BuildRouter()
 
-		request, err := http.NewRequest("GET", "/rsvp", nil)
+		request, err := http.NewRequest("GET", "/whatever", nil)
 		if err != nil {
 			panic(err)
 		}
@@ -43,84 +40,6 @@ var _ = Describe("Server", func() {
 
 		Expect(writer.Code).To(Equal(http.StatusOK))
 		Expect(writer.Body.String()).To(ContainSubstring("<form"))
-	})
-
-	Describe("POSTing to /rsvp", func() {
-		Context("when the RSVP is valid", func() {
-			It("persists the RSVP and says thank you", func() {
-				fakePageFactory := &fakes.PageFactory{}
-				data := &fakes.Persist{}
-				serverConfig := ServerConfig{
-					Data:          data,
-					AssetNames:    []string{},
-					PageFactory:   fakePageFactory,
-					RsvpHandler:   func(rsvp types.Rsvp) string { return "Thank you for your response." },
-					RsvpValidator: func(rsvp types.Rsvp) error { return nil },
-				}
-				router := serverConfig.BuildRouter()
-
-				form := url.Values{}
-				form.Add("FullName", "Test User")
-				form.Add("Email", "user@example.com")
-				form.Add("Decline", "false")
-				form.Add("Count", "4")
-
-				request, err := http.NewRequest("POST", "/rsvp", strings.NewReader(form.Encode()))
-				if err != nil {
-					panic(err)
-				}
-				request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-				router.ServeHTTP(writer, request)
-
-				Expect(writer.Code).To(Equal(http.StatusCreated))
-				body := writer.Body.String()
-				Expect(body).To(ContainSubstring("<body>Thank you for your response."))
-
-				Expect(data.Rsvps).To(Equal([]types.Rsvp{
-					types.Rsvp{
-						FullName: "Test User",
-						Email:    "user@example.com",
-						Decline:  false,
-						Count:    4,
-					},
-				}))
-			})
-		})
-		Context("when the RSVP is invalid", func() {
-			It("pretty prints the resulting error", func() {
-				fakePageFactory := &fakes.PageFactory{}
-				data := &fakes.Persist{}
-				serverConfig := ServerConfig{
-					Data:          data,
-					AssetNames:    []string{},
-					PageFactory:   fakePageFactory,
-					RsvpHandler:   func(rsvp types.Rsvp) string { return "nope" },
-					RsvpValidator: func(rsvp types.Rsvp) error { return errors.New("Invalid RSVP!") },
-				}
-				router := serverConfig.BuildRouter()
-
-				form := url.Values{}
-				form.Add("FullName", "Test User")
-				form.Add("Email", "user@example.com")
-				form.Add("Decline", "true")
-				form.Add("Count", "4")
-
-				request, err := http.NewRequest("POST", "/rsvp", strings.NewReader(form.Encode()))
-				if err != nil {
-					panic(err)
-				}
-				request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-				router.ServeHTTP(writer, request)
-
-				Expect(writer.Code).To(Equal(http.StatusBadRequest))
-				body := writer.Body.String()
-				Expect(body).To(ContainSubstring("Invalid RSVP!"))
-
-				Expect(data.Rsvps).To(BeEmpty())
-			})
-		})
 	})
 
 	Describe("GET to /rsvp/all", func() {
@@ -145,7 +64,6 @@ var _ = Describe("Server", func() {
 				Data:                fakePersist,
 				AssetNames:          []string{},
 				PageFactory:         &fakes.PageFactory{},
-				RsvpHandler:         nil,
 				RsvpListCredentials: map[string]string{"username": "foobar!"},
 			}
 			router := serverConfig.BuildRouter()
@@ -173,7 +91,6 @@ Another person,,0
 				Data:                &fakes.Persist{},
 				AssetNames:          []string{},
 				PageFactory:         &fakes.PageFactory{},
-				RsvpHandler:         nil,
 				RsvpListCredentials: map[string]string{"username": "foobar!"},
 			}
 			router := serverConfig.BuildRouter()

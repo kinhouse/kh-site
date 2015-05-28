@@ -20,11 +20,6 @@ func (p *Persist) GetAllRSVPs() ([]types.Rsvp, error) {
 	return p.Rsvps, nil
 }
 
-func (p *Persist) InsertNewRSVP(rsvp types.Rsvp) (int64, error) {
-	p.Rsvps = append(p.Rsvps, rsvp)
-	return int64(len(p.Rsvps) - 1), nil
-}
-
 //
 // Asset Provider
 //

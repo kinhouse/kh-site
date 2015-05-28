@@ -50,10 +50,3 @@ func (p Persist) GetAllRSVPs() ([]types.Rsvp, error) {
 	_, err := query.GetAll(p.context, &results)
 	return results, err
 }
-
-func (p Persist) InsertNewRSVP(rsvp types.Rsvp) (int64, error) {
-	key := datastore.NewIncompleteKey(p.context, KindRsvp, nil)
-	key, err := datastore.Put(p.context, key, &rsvp)
-	fmt.Printf("just put: %+v\n", key)
-	return key.ID(), err
-}

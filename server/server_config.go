@@ -18,7 +18,6 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 		PageSpec{AssetName: "travel", Title: "Travel", Route: "travel"},
 		PageSpec{AssetName: "explore", Title: "Explore", Route: "explore"},
 		PageSpec{AssetName: "gifts", Title: "Gifts", Route: "gifts"},
-		PageSpec{AssetName: "rsvp", Title: "RSVP", Route: "rsvp"},
 	}
 
 	pageFactory := NewPageFactory(assetProvider, pageSpecs)
@@ -29,8 +28,6 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 		Data:                persist,
 		AssetNames:          assetNames,
 		PageFactory:         pageFactory,
-		RsvpHandler:         RsvpHandler,
-		RsvpValidator:       ValidateRsvp,
 		AssetProvider:       assetProvider,
 		RsvpListCredentials: map[string]string{"admin": adminPassword},
 	}
