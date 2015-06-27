@@ -19,6 +19,7 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 		PageSpec{AssetName: "travel", Title: "Travel", Route: "travel"},
 		PageSpec{AssetName: "explore", Title: "Explore", Route: "explore"},
 		PageSpec{AssetName: "gifts", Title: "Gifts", Route: "gifts"},
+		PageSpec{AssetName: "blessings", Title: "", Route: "blessings"},
 	}
 
 	pageFactory := NewPageFactory(assetProvider, pageSpecs)
