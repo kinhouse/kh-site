@@ -12,14 +12,7 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 	assetProvider := &AssetProvider{getAssetsDirectory()}
 
 	pageSpecs := []PageSpec{
-		PageSpec{AssetName: "home", Title: "Home", Route: ""},
-		PageSpec{AssetName: "us", Title: "Us", Route: "us"},
-		PageSpec{AssetName: "event", Title: "Event", Route: "event"},
-		PageSpec{AssetName: "traditions", Title: "Traditions", Route: "traditions"},
-		PageSpec{AssetName: "travel", Title: "Travel", Route: "travel"},
-		PageSpec{AssetName: "explore", Title: "Explore", Route: "explore"},
-		PageSpec{AssetName: "gifts", Title: "Gifts", Route: "gifts"},
-		PageSpec{AssetName: "blessings", Title: "", Route: "blessings"},
+		PageSpec{AssetName: "home", Title: "", Route: ""},
 	}
 
 	pageFactory := NewPageFactory(assetProvider, pageSpecs)
@@ -27,11 +20,10 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 	assetNames := assetProvider.ListAllNonHTML()
 
 	serverConfig := ServerConfig{
-		Data:                persist,
-		AssetNames:          assetNames,
-		PageFactory:         pageFactory,
-		AssetProvider:       assetProvider,
-		RsvpListCredentials: map[string]string{"admin": adminPassword},
+		Data:          persist,
+		AssetNames:    assetNames,
+		PageFactory:   pageFactory,
+		AssetProvider: assetProvider,
 	}
 
 	router := serverConfig.BuildRouter()
