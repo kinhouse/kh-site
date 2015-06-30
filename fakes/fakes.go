@@ -6,19 +6,7 @@ import (
 	"path"
 
 	"github.com/kinhouse/kh-site/server"
-	"github.com/kinhouse/kh-site/types"
 )
-
-//
-// Persist
-//
-type Persist struct {
-	Rsvps []types.Rsvp
-}
-
-func (p *Persist) GetAllRSVPs() ([]types.Rsvp, error) {
-	return p.Rsvps, nil
-}
 
 //
 // Asset Provider

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
+func BuildServer() *gin.Engine {
 	assetProvider := &AssetProvider{getAssetsDirectory()}
 
 	pageSpecs := []PageSpec{
@@ -20,7 +20,6 @@ func BuildServer(persist PersistInterface, adminPassword string) *gin.Engine {
 	assetNames := assetProvider.ListAllNonHTML()
 
 	serverConfig := ServerConfig{
-		Data:          persist,
 		AssetNames:    assetNames,
 		PageFactory:   pageFactory,
 		AssetProvider: assetProvider,

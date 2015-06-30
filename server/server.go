@@ -3,8 +3,6 @@ package server
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/kinhouse/kh-site/types"
-
 	"net/http"
 )
 
@@ -13,12 +11,7 @@ type PageFactoryInterface interface {
 	StaticPages() map[string][]byte
 }
 
-type PersistInterface interface {
-	GetAllRSVPs() ([]types.Rsvp, error)
-}
-
 type ServerConfig struct {
-	Data          PersistInterface
 	AssetNames    []string
 	PageFactory   PageFactoryInterface
 	AssetProvider AssetProviderInterface

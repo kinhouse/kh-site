@@ -10,7 +10,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/agouti"
 
-	"github.com/kinhouse/kh-site/fakes"
 	"github.com/kinhouse/kh-site/server"
 )
 
@@ -25,8 +24,6 @@ var baseUrl string
 
 const port = 5555
 
-var localPersist *fakes.Persist
-
 var _ = BeforeSuite(func() {
 	var err error
 
@@ -39,8 +36,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(agoutiDriver.Start()).To(Succeed())
 
-	localPersist = &fakes.Persist{}
-	s := server.BuildServer(localPersist, "test-password")
+	s := server.BuildServer()
 	go s.Run(fmt.Sprintf(":%d", port))
 
 	baseUrl = fmt.Sprintf("http://localhost:%d", port)

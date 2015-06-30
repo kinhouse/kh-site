@@ -23,7 +23,6 @@ var _ = Describe("Server", func() {
 			FD_StaticPages: map[string][]byte{"whatever": []byte("Some <form></form> goes here.")},
 		}
 		serverConfig := ServerConfig{
-			Data:        nil,
 			AssetNames:  []string{},
 			PageFactory: fakePageFactory,
 		}
