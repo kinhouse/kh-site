@@ -11,10 +11,6 @@
 			"Rev": "3b079bb6f79ae501e73a5401c41b589f6616b61e"
 		},
 		{
-			"ImportPath": "github.com/golang/protobuf/proto",
-			"Rev": "7f07925444bb51fa4cf9dfe6f7661876f8852275"
-		},
-		{
 			"ImportPath": "github.com/julienschmidt/httprouter",
 			"Rev": "46807412fe50aaceb73bb57061c2230fd26a1640"
 		},
@@ -32,18 +28,6 @@
 			"ImportPath": "github.com/sclevine/agouti",
 			"Comment": "2.0-6-g70f7838",
 			"Rev": "70f7838ca8d29ec3e952ed550e2fa0979bdf7ca0"
-		},
-		{
-			"ImportPath": "golang.org/x/net/context",
-			"Rev": "ca657d0bd9d9b4f73523118b59af79e5374b9908"
-		},
-		{
-			"ImportPath": "golang.org/x/oauth2",
-			"Rev": "2b74ab268d043de5b0577a4773e67df08135e06d"
-		},
-		{
-			"ImportPath": "google.golang.org/cloud",
-			"Rev": "2e43671e4ad874a7bca65746ff3edb38e6e93762"
 		}
 	]
 }
